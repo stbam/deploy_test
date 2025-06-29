@@ -1,5 +1,10 @@
 const express = require('express')
 const app = express()
+const password = process.argv[2]
+const Note = require('./models/note')
+require('dotenv').config()
+
+
 
 app.use(express.json())
 
@@ -42,31 +47,82 @@ app.post('/api/notes', (request, response) => {
     })
   }
 
-  const note = {
+ /* const note = {
     content: body.content,
     important: body.important || false,
     id: generateId(),
-  }
+  }*/
+ const note = new Note({
+    content: body.content,
+    important: body.important || false,
+ })
 
-  notes = notes.concat(note)
+ // notes = notes.concat(note)
+  note.save().then(savedNote=>{
+    response.json(savedNote)
+  })
+  //response.json(note)
+})
 
-  response.json(note)
+app.put('/api/notes/:id',(request,response)=>{
+
+  const {content,important} =  request.body;
+Note.findByIdAndUpdate(
+  request.params.id,
+  {content,important},
+  { new: true, runValidators: true, context: 'query' }
+).then(updatedNote => {
+      if (updatedNote) {
+        response.json(updatedNote)
+      } else {
+        response.status(404).end()
+      }
+    })
+    .catch(error => {
+      console.error(error)
+      response.status(400).json({ error: 'malformatted id or validation error' })
+    })
+/*app.put('/api/notes/:id', (request, response) => {
+  const { content, important } = request.body
+
+  Note.findByIdAndUpdate(
+    request.params.id,
+    { content, important },
+    { new: true, runValidators: true, context: 'query' }
+  )
+    .then(updatedNote => {
+      if (updatedNote) {
+        response.json(updatedNote)
+      } else {
+        response.status(404).end()
+      }
+    })
+    .catch(error => {
+      console.error(error)
+      response.status(400).json({ error: 'malformatted id or validation error' })
+    })
+})
+
+  */
 })
 
 
 
 
 
-
   app.get('/api/notes/:id', (request, response) => {
-    const id = request.params.id
+    
+    /*const id = request.params.id
     const note = notes.find(note => note.id === id)
     if(note){
     response.json(note)
     }else{
         response.status(404).end()
     }
-
+*/
+Note.findById(request.params.id).then(note=>{
+  response.json(note)
+})
 
   })
   app.get('/', (request, response) => {
@@ -74,7 +130,10 @@ app.post('/api/notes', (request, response) => {
   })
 
   app.get('/api/notes', (request, response) => {
+   // response.json(notes)
+   Note.find({}).then(notes=>{
     response.json(notes)
+   })
   })
 
   app.delete('/api/notes/:id', (request, response) => {
@@ -84,13 +143,22 @@ app.post('/api/notes', (request, response) => {
     response.status(204).end()
   })
 
-
+const requestLogger = (request, response, next) => {
+  console.log('Method:', request.method)
+  console.log('Path:  ', request.path)
+  console.log('Body:  ', request.body)
+  console.log('---')
+  next()
+}
+app.use(requestLogger)
 
 /*const PORT = 3001
 app.listen(PORT)
 console.log(`Server running on port ${PORT}`)
 */
-const PORT = process.env.PORT || 3001
+//const PORT = process.env.PORT || 3001
+
+const PORT = process.env.PORT
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
