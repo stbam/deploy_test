@@ -1,8 +1,9 @@
 const mongoose = require('mongoose')
 
 mongoose.set('strictQuery', false)
-var password= process.argv[2]
-const url = `mongodb+srv://stbacmtd:${password}@cluster0.xr8ufm7.mongodb.net/noteApp?retryWrites=true&w=majority&appName=Cluster0`
+//var password= process.argv[2]
+//const url = `mongodb+srv://stbacmtd:${password}@cluster0.xr8ufm7.mongodb.net/noteApp?retryWrites=true&w=majority&appName=Cluster0`
+const url='mongodb+srv://stbacmtd:wDRz7vRvJrnCjDy6@cluster0.xr8ufm7.mongodb.net/noteApp?retryWrites=true&w=majority&appName=Cluster0'
 
 //const url = process.env.MONGODB_URI
 
